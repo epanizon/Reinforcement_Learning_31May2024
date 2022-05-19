@@ -1,6 +1,6 @@
-*** how to use the programs:
+### how to use the programs:
 
-**to use the main.py program: 
+##to use the main.py program: 
 
 python3 main.py arg1 arg2 arg3 
 
