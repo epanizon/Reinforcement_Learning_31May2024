@@ -1,5 +1,6 @@
+#How to use the programs: 
 
-#to use the main.py program: 
+1. to use the main.py program: 
 
 python3 main.py arg1 arg2 arg3 
 
@@ -9,7 +10,7 @@ arg2 = actor learning rate
 
 arg3 = directory to save plots and data of the rewards during the learning procedure, and to save the weights of the neural networks used to implement actor, critic1, critic2 and their target networks 
 
-#to use the test.py program : 
+2. to use the test.py program : 
 
 python3 test.py arg1 arg2 arg3 
 
