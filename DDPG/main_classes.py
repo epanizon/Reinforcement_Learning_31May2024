@@ -297,8 +297,8 @@ class DDPGagent:
         
         self.batch_size = batch_size 
         
-        self.name_critic = name_critic #forse questi non servono piu, nel caso toglierli perchè 
-                                       #sto usando direttamente i parametri 
+        self.name_critic = name_critic
+                                      
         
         self.memory= Replay_Memory(replay_size)
         
@@ -384,7 +384,6 @@ class DDPGagent:
         if len(self.memory) <  self.replay_min:
             
             return 
-       # print("train")
         
         states, actions, rewards, next_states, not_done = self.memory.sample(self.batch_size)
         
@@ -410,17 +409,15 @@ class DDPGagent:
         
         target_critic_value = self.target_critic(next_states, target_actions) 
         
-       # print("prima analisi")
-       # print("target_critic_value shape: ",target_critic_value.shape)
+    
         
         targets = rewards + self.gamma*not_done*target_critic_value
         targets.to(self.device) 
         
-        #print("not_done shape: ",not_done.shape)
         
-       # print("rewards shape:",rewards.shape)
+       # print(rewards.shape)
         
-        #print("shape of targets = ", targets.shape)
+         
         
         self.critic.train()
         
@@ -428,7 +425,7 @@ class DDPGagent:
         
         critic_value = self.critic.forward(states, actions)
         
-        #print("critic value shape: ",critic_value.shape)
+      
         
         loss = self.critic_criterion(critic_value, targets)
         

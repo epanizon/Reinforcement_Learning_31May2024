@@ -90,6 +90,10 @@ class CriticNetwork(nn.Module):
         
         self.name = name 
         
+        #self.checkpoint_dir = chkpt_dir 
+        
+        #self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_td3') 
+        
         self.fc1 = nn.Linear(self.input_dims[0]+n_actions, self.fc1_dims) 
         
         self.fc2 = nn.Linear(self.fc1_dims+n_actions, self.fc2_dims) 
@@ -161,7 +165,12 @@ class ActorNetwork(nn.Module):
         self.n_actions = n_actions 
         
         self.name = name 
-       
+        
+        #self.checkpoint_dir = chkpt_dir 
+        
+        #self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_td3') 
+        
+        #self.fc1 = nn.Linear(self.input_dims[0]+n_actions, self.fc1_dims) 
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims) 
         
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims) 
@@ -177,12 +186,12 @@ class ActorNetwork(nn.Module):
         prob = self.fc1(state)
         
         prob= F.relu(prob) 
-       
+        
         
         prob= self.fc2(prob)
    
         prob = F.relu(prob) 
-       
+      
         
         mu = T.tanh(self.mu(prob))*MAX_ACTION
         
@@ -283,11 +292,12 @@ class Agent:
             
                 mu = self.actor.forward(state).to(self.device) 
             
-          
+            #mu = mu +T.tensor(np.random.normal(scale = self.noise), dtype = T.float).to(self.device) 
             
             mu = mu +T.tensor(np.random.normal(0, self.max_action*expl_noise,size=self.n_actions), dtype = T.float).to(self.device) 
         
-      
+        #we have to climp to make sure that the actions are in the right boundaries, because adding the noise 
+        #this can not be true 
         
         mu_prime = T.clamp(mu, self.min_action, self.max_action)
         
@@ -323,7 +333,7 @@ class Agent:
         
         noise = T.clamp(T.randn_like(action)*self.noise*self.max_action,0.5*self.min_action,0.5*self.max_action)
         
-    
+      
         
         target_actions = target_actions + noise
         
@@ -369,7 +379,7 @@ class Agent:
         
         self.learn_step_cntr +=1 
         
-        #updte actor 
+        #update actor 
         
         if self.learn_step_cntr % self.update_actor_iter != 0: 
          
