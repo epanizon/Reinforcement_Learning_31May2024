@@ -1,4 +1,4 @@
-##How to use the programs: 
+#How to use the programs:#
 
 1. to use the main.py program: 
 
