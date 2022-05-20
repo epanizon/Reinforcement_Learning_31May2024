@@ -1,5 +1,5 @@
 
-to use the main.py program: 
+1. to use the main.py program: 
 
 python3 main.py arg1 arg2 arg3 arg4
 
@@ -11,13 +11,4 @@ arg3 = directory to save plots and data of the rewards during the learning proce
 
 arg4 = 0 to train with OU noise, another integer to train with normal noise
 
-to use the test.py program : 
-
-python3 test.py arg1 arg2 arg3 
-
-arg1 = directory where the networks parameters to load the model are saved 
-
-arg2 = integer number of episodes 
-
-arg3 = 0 to disable the graphic rendering, 1 or any other integer to enable it 
 
