@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F 
 import torch.autograd 
 import torch.optim as optim 
-#from torch.autograd import Variable #probabilmente questo non serve
+
 import numpy as np 
 import gym 
 from collections import deque 
@@ -155,7 +155,7 @@ class Critic(nn.Module):
         
         action_value = F.relu(self.action_value(action))
         
-        state_action_value = F.relu(torch.add(state_value,action_value))  #qui dopo proverei a concatenare 
+        state_action_value = F.relu(torch.add(state_value,action_value))  
         
         state_action_value = self.q(state_action_value)
         
@@ -334,7 +334,7 @@ class DDPGagent:
         
         self.critic_criterion = loss 
         
-        self.actor_criterion = loss   #mi pare ci sia solo per il critic
+        self.actor_criterion = loss  
         
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters(),lr=critic_lr,weight_decay=0.01)
         
@@ -374,7 +374,7 @@ class DDPGagent:
      
         actor_action = self.actor(observation)
         
-        action = actor_action.cpu().detach().numpy()   # gym always want numpy arrays 
+        action = actor_action.cpu().detach().numpy()  
         
         return action 
     
@@ -415,7 +415,7 @@ class DDPGagent:
         targets.to(self.device) 
         
         
-       # print(rewards.shape)
+       
         
          
         
