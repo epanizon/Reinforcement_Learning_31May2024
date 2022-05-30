@@ -157,9 +157,9 @@ class Actor(nn.Module):
         
         if self.name is not None:
         
-            print("saving")
+            print("loading")
     
-            self.load_state_dict(torch.load(self.filename))
+            self.load_state_dict(T.load(self.filename))
             
             
 
@@ -284,7 +284,7 @@ class Critic(nn.Module):
         
         if self.name is not None:
         
-            print("saving")
+            print("loading")
     
             self.load_state_dict(T.load(self.filename))
             
@@ -503,7 +503,7 @@ class Agent:
             
             mu = T.tensor(np.random.normal(scale = expl_noise, size = (self.n_actions,))).unsqueeze(0)
             
-           # print("dimensioni di mu qui",mu.shape)
+           
             
             
         else: 

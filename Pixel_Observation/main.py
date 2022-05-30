@@ -21,6 +21,8 @@ if __name__ == '__main__':
 
     env = gym.make('BipedalWalkerHardcore-v3')
     
+    env.seed(1)
+    
     env = PixelObservationWrapper(env)    
     
     disable_view_window()
@@ -44,15 +46,18 @@ if __name__ == '__main__':
     #T.tensor(s,dtype=T.float)
    # transform.Normalize([mean,mean,mean,mean], [std,std,std,std]),
    # ])
+   
     dev = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
    # dev ="cpu"
    
-    agent = Agent(env, 0.001,0.001,device = dev,name="pixels_and_values_model_without_lstm",chkpt="model_1")
+    agent = Agent(env, 0.005,0.005,device = dev,name="model",chkpt="model_3")
+    #model 1 was lr = 0.001
+    #model 2 lr = 0.0001 
     
     #agent = Agent(env,0.0002,0.0001,transforms=transforms,device = dev,name="prova_CCN")
     #agent = Agent(env,0.005,0.005,0.005,transforms=transforms,device=dev,name="prima_prova_CCN")
-    EPISODES = 20
-    filename = "model_1" 
+    EPISODES = 60
+    filename = "model_2" 
     best_score = env.reward_range[0]
     score_history = [] 
     step = 0 
@@ -116,11 +121,11 @@ if __name__ == '__main__':
             
     x = [i+1 for i in range(EPISODES)]    
 
-    figure_file = "model_1.png"
+    figure_file = "model_3.png"
 
     plot_average_reward(x, score_history,figure_file)
     
-    with open('model_1.txt','w') as f: 
+    with open('model_3.txt','w') as f: 
     
        for i in range(0,len(score_history)): 
         
