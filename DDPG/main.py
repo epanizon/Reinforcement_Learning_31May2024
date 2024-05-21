@@ -103,15 +103,15 @@ if __name__ == '__main__':
             
         score_history.append(score) 
         
-        avg_score = np.mean(score_history[-100:])
-
-        # Keeping track of best checkpoint so far.
-        if avg_score > best_score: 
-            best_score = avg_score 
-            agent.save_model() 
-        
+        # Periodic I/O 
         if (i%50==0): 
+            avg_score = np.mean(score_history[-100:])
             print('episode ', i, 'score %.1f' % score, 'average score %.1f' % avg_score)
+            
+            # Keeping track of best checkpoint so far.
+            if avg_score > best_score: 
+                best_score = avg_score 
+                agent.save_model() 
 
     # Plotting scores 
     x = [i+1 for i in range(EPISODES)]
