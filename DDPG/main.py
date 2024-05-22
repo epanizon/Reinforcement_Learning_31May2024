@@ -32,10 +32,12 @@ if __name__ == '__main__':
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     EPISODES = args.EPISODES
+
+    hidden_layers = [400, 300]
     
     # Agent is created
     agent = DDPGagent(env, 
-                      400, 300,                     #size of hidden layers for critic and actor NNs 
+                      hidden_layers_dims=hidden_layers,                     #size of hidden layers for critic and actor NNs 
                       critic_lr=args.critic_lr, 
                       actor_lr=args.actor_lr, 
                       name_critic="critic_ddpg", 
