@@ -56,7 +56,8 @@ class NormalizedEnv(gym.ActionWrapper):
         return act_k_inv * (action - act_b)
         
         
-        
+# class to store memories as tuples (s,a,r,s',done) 
+# with functions to add memories, remove memories and sample from those.
 class Replay_Memory: 
     
     def __init__(self, max_size): 
