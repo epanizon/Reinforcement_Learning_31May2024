@@ -10,6 +10,7 @@ from collections import deque
 import random
 import os
 
+# Ornstein–Uhlenbeck noise.
 class OUNoise(object):
     def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000):
         self.mu = mu
@@ -25,7 +26,8 @@ class OUNoise(object):
         
     def reset(self):
         self.state = np.ones(self.action_dim) * self.mu
-        
+
+    # the internal state evolution
     def evolve_state(self):
         x  = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim)
@@ -33,10 +35,9 @@ class OUNoise(object):
         return self.state
     
     def get_action(self, action, t=0):
-    
         ou_state = self.evolve_state()
         self.sigma = self.max_sigma - (self.max_sigma - self.min_sigma) * min(1.0, t / self.decay_period)
-
+        # final action is the result between the determinist part "action" and the (correlated) noise "ou_state", which has a variance which decays in time.
         return np.clip(action + ou_state, self.low, self.high)
         
         
