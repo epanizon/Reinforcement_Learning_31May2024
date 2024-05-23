@@ -129,7 +129,7 @@ class Critic(nn.Module):
             self.hidden_layers_list.append( nn.ReLU() )
 
         last_hidden_layer_dim = self.hidden_layers_dims[-1]
-        self.hidden_layers_state_value = nn.Sequential(*self.last_hidden_layers_list)
+        self.hidden_layers_state_value = nn.Sequential(*self.hidden_layers_list)
         
         # a linear layer is constructed from the actions directly to the last hidden layer 
         self.action_value = nn.Linear(self.n_actions, last_hidden_layer_dim)
@@ -208,12 +208,9 @@ class Actor(nn.Module):
         x = torch.tanh( self.hidden_layers( state) )
         return x
     
-    # q is initialized to smaller values than what "suggested" by the 1/sqrt(input_dim) rule
+    # here for symmetry reasons
     def init_weights(self): 
-        
-        init_weights_mu = 0.003
-        torch.nn.init.uniform_(self.hidden_layers_dims[-1].weight.data, -init_weights_mu, init_weights_mu)
-        torch.nn.init.uniform_(self.hidden_layers_dims[-1].bias.data,   -init_weights_mu, init_weights_mu)
+        pass
         
         
     # saves checkpoint for the model
@@ -276,18 +273,18 @@ class DDPGagent:
             name_target_critic = name_critic + "_target"
         
         # creates target critic
-        self.target_critic = Critic(self.input_dim, hidden_layers_dims, self.n_actions, self.n_actions, name = name_target_critic,chkpt=directory).to(device)
+        self.target_critic = Critic(self.input_dim, hidden_layers_dims, self.n_actions, name = name_target_critic,chkpt=directory).to(device)
         
         
         # creates actor
-        self.actor = Actor(self.input_dim, layer1_size, layer2_size, self.n_actions, name = name_actor,chkpt=directory).to(device)
+        self.actor = Actor(self.input_dim, hidden_layers_dims, self.n_actions, name = name_actor,chkpt=directory).to(device)
         
         name_target_actor = None 
         if name_actor is not None: 
                 name_target_actor = name_actor + "_target"
             
         # creates target actor
-        self.target_actor = Actor(self.input_dim, layer1_size, layer2_size, self.n_actions, name = name_target_actor,chkpt=directory).to(device)
+        self.target_actor = Actor(self.input_dim, hidden_layers_dims, self.n_actions, name = name_target_actor,chkpt=directory).to(device)
         
         # initialization of weights (possibly redundant)
         self.critic.init_weights()
