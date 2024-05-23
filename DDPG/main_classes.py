@@ -129,7 +129,7 @@ class Critic(nn.Module):
             self.hidden_layers_list.append( nn.ReLU() )
 
         last_hidden_layer_dim = self.hidden_layers_dims[-1]
-        self.hidden_layers_state_value = nn.Sequential(*last_hidden_layers_state_value)
+        self.hidden_layers_state_value = nn.Sequential(*self.last_hidden_layers_list)
         
         # a linear layer is constructed from the actions directly to the last hidden layer 
         self.action_value = nn.Linear(self.n_actions, last_hidden_layer_dim)
@@ -140,7 +140,7 @@ class Critic(nn.Module):
     def forward(self, state, action): 
         
         # first "branch" from input state to final hidden layer
-        state_value = hidden_layers_state_value(state)
+        state_value = self.hidden_layers_state_value(state)
         
         # second "branch" from action to final hidden layer
         action_value = F.relu(self.action_value(action))
