@@ -64,7 +64,7 @@ if __name__ == '__main__':
     step = 0
     for i in range(EPISODES): 
     
-        state = env.reset() 
+        state, _ = env.reset() 
         done = False 
         score = 0 
         
@@ -84,8 +84,8 @@ if __name__ == '__main__':
                 normal_scalar *= 0.9987
                 
             # step 
-            new_state, reward, done, _ = env.step(action) 
-
+            new_state, reward, term, trunc, _ = env.step(action) 
+            done = (term or trunc)
             # Cutoff in performance. Score -100 ---> episode ends!
             if reward <= -100: 
                 reward = -1 
