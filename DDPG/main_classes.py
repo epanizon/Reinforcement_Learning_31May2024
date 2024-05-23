@@ -190,26 +190,23 @@ class Actor(nn.Module):
             self.filename = os.path.join(chkpt, name +'_ddpg')
 
         # hidden_layers are linear + layernorm. 
-        self.hidden_layers = []
+        self.hidden_layers_list = []
         for dim_in, dim_out in zip(self.hidden_layers_dims[:-1],self.hidden_layers_dims[1:]): 
-            self.hidden_layers.append( nn.Linear( dim_in, dim_out) )
-            self.hidden_layers.append( nn.LayerNorm(dim_out) )
-            self.hidden_layers.append( F.relu )
+            self.hidden_layers_list.append( nn.Linear( dim_in, dim_out) )
+            self.hidden_layers_list.append( nn.LayerNorm(dim_out) )
+            self.hidden_layers_list.append( nn.ReLU() )
 
         last_hidden_layer_dim = self.hidden_layers_dims[-1]
-
         # a linear layer is constructed from the last hidden layer to the action  
-        self.hidden_layers.append( nn.Linear(last_hidden_layer_dim, self.n_actions) )
-   
+        self.hidden_layers_list.append( nn.Linear(last_hidden_layer_dim, self.n_actions) )
+        
+        # creates a torch Module, to make parameters visible to torch optimizer
+        self.hidden_layers = nn.Sequential(*self.hidden_layers_list)
+
     def forward(self,state):
         
-        # from input state to final hidden layer to mu
-        x = state
-        for hidden_layer in self.hidden_layers:
-            x = hidden_layer(x)
-        
-        # squashing of mu
-        x = torch.tanh(x)
+        # from input state to final hidden layer to squashed mu
+        x = torch.tanh( self.hidden_layers( state) )
         return x
     
     # q is initialized to smaller values than what "suggested" by the 1/sqrt(input_dim) rule
@@ -224,6 +221,10 @@ class Actor(nn.Module):
     def save_checkpoint(self):
         torch.save(self.state_dict(), self.filename)
         print("saving")
+
+    # loads checkpoint for the model
+    def load_checkpoint(self):
+        self.load_state_dict(torch.load(self.filename))
 
     # loads checkpoint for the model
     def load_checkpoint(self):
