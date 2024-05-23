@@ -31,7 +31,7 @@ if __name__ == '__main__':
     env = gym.make('BipedalWalker-v3')
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    EPISODES = args.EPISODES
+    EPISODES = args.n_episodes
 
     hidden_layers = [400, 300]
     
