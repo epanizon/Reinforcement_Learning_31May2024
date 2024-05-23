@@ -112,7 +112,7 @@ class Critic(nn.Module):
         
         # hidden_layers_dims is a list with dimension of all hidden layers.
         # number of hidden_layers is inferred by its length
-        self.hidden_layers_dims = input_dim + hidden_layers_dims
+        self.hidden_layers_dims = list(input_dim) + hidden_layers_dims
         self.n_actions = n_actions 
         
         # name of model to save
@@ -179,7 +179,7 @@ class Actor(nn.Module):
             
         # hidden_layers_dims is a list with dimension of all hidden layers.
         # number of hidden_layers is inferred by its length
-        self.hidden_layers_dims = input_dim + hidden_layers_dims
+        self.hidden_layers_dims = list(input_dim) + hidden_layers_dims
         self.n_actions = n_actions 
         
         # name of model to save
