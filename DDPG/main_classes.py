@@ -122,14 +122,15 @@ class Critic(nn.Module):
             self.filename = os.path.join(chkpt, name +'_ddpg')
 
         # hidden_layers are linear + layernorm. 
-        self.hidden_layers = []
+        self.hidden_layers_list = []
         for dim_in, dim_out in zip(self.hidden_layers_dims[:-1],self.hidden_layers_dims[1:]): 
-            self.hidden_layers.append( nn.Linear( dim_in, dim_out) )
-            self.hidden_layers.append( nn.LayerNorm(dim_out) )
-            self.hidden_layers.append( F.relu )
+            self.hidden_layers_list.append( nn.Linear( dim_in, dim_out) )
+            self.hidden_layers_list.append( nn.LayerNorm(dim_out) )
+            self.hidden_layers_list.append( nn.ReLU() )
 
         last_hidden_layer_dim = self.hidden_layers_dims[-1]
-
+        self.hidden_layers_state_value = nn.Sequential(*last_hidden_layers_state_value)
+        
         # a linear layer is constructed from the actions directly to the last hidden layer 
         self.action_value = nn.Linear(self.n_actions, last_hidden_layer_dim)
                                       
@@ -139,15 +140,13 @@ class Critic(nn.Module):
     def forward(self, state, action): 
         
         # first "branch" from input state to final hidden layer
-        state_value = state
-        for hidden_layer in self.hidden_layers:
-            state_value = hidden_layer(state_value)
+        state_value = hidden_layers_state_value(state)
         
         # second "branch" from action to final hidden layer
         action_value = F.relu(self.action_value(action))
 
         # merge of the two branches
-        state_action_value = F.relu(torch.add(state_value,action_value))
+        state_action_value = F.relu(torch.add(state_value, action_value))
         
         # evaluation of q(s,a)
         state_action_value = self.q(state_action_value)
