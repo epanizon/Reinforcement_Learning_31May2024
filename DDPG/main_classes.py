@@ -389,8 +389,10 @@ class DDPGagent:
         
         mu = self.actor.forward(states)
         
-        # if MSE, loss =  - Q(s, mu(s))^2 
-        #     --> grad ~ -Q(s,mu) grad mu(s)
+
+        # gradient is performed directly on the Q(s,mu)
+        # the minus sign transforms the minimization (implied in the optimizer) with the 
+        # maximization objective of the deterministic policy gradient
         actor_loss = -self.critic.forward(states,mu)
         actor_loss = torch.mean(actor_loss)
         actor_loss.backward()
