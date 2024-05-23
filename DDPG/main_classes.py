@@ -63,15 +63,21 @@ class Replay_Memory:
     def __init__(self, max_size): 
         
         self.max_size = max_size 
+        # deque is a fast list-like type
         self.buffer = deque(maxlen = max_size)
-        
+
+    
     def push(self, state, action, reward, next_state, done): 
-        
+        """
+        push: receives a new experience (s,a,r,s',done) to add to the buffer 
+        """
         experience = (state, action, np.array([reward]), next_state, done)
         self.buffer.append(experience)
         
     def sample(self, batch_size):
-        
+        """
+        sample: returns a (random) batch of size batch_size of experiences from the buffer 
+        """
         state_batch = []
         action_batch = [] 
         reward_batch = [] 
@@ -162,92 +168,65 @@ class Critic(nn.Module):
     # loads checkpoint for the model
     def load_checkpoint(self):
         self.load_state_dict(torch.load(self.filename))
-        
-        
-
-        
-        
+    
 
 
 
 class Actor(nn.Module):
     
-    def __init__(self, input_dim, fc1_dim, fc2_dim, n_actions, name=None, chkpt="model"): 
+    def __init__(self, input_dim, hidden_layers_dims, n_actions, name=None, chkpt="model"): 
         
-        super(Actor, self).__init__()
-        
-        self.input_dim = input_dim 
-        
-        self.fc1_dim = fc1_dim 
-        
-        self.fc2_dim = fc2_dim 
-        
+        super(Actor, self).__init__() 
+            
+        # hidden_layers_dims is a list with dimension of all hidden layers.
+        # number of hidden_layers is inferred by its length
+        self.hidden_layers_dims = input_dim + hidden_layers_dims
         self.n_actions = n_actions 
         
+        # name of model to save
         if name is not None:
-        
             if not os.path.exists(chkpt): 
-            
                 os.makedirs(chkpt)
-                
             self.filename = os.path.join(chkpt, name +'_ddpg')
-            
-        self.fc1 = nn.Linear(*self.input_dim, self.fc1_dim)
-        
-        self.bn1 = nn.LayerNorm(self.fc1_dim)
-        
-        self.fc2 = nn.Linear(self.fc1_dim, self.fc2_dim)
-        
-        self.bn2 = nn.LayerNorm(self.fc2_dim)
-        
-        self.mu = nn.Linear(self.fc2_dim, self.n_actions)
-        
+
+        # hidden_layers are linear + layernorm. 
+        self.hidden_layers = []
+        for dim_in, dim_out in zip(self.hidden_layers_dims[:-1],self.hidden_layers_dims[1:]): 
+            self.hidden_layers.append( nn.Linear( dim_in, dim_out) )
+            self.hidden_layers.append( nn.LayerNorm(dim_out) )
+            self.hidden_layers.append( F.relu )
+
+        last_hidden_layer_dim = self.hidden_layers_dims[-1]
+
+        # a linear layer is constructed from the last hidden layer to the action  
+        self.hidden_layers.append( nn.Linear(last_hidden_layer_dim, self.n_actions) )
+   
     def forward(self,state):
         
-        x = self.fc1(state)
+        # from input state to final hidden layer to mu
+        x = state
+        for hidden_layer in self.hidden_layers:
+            x = hidden_layer(x)
         
-        x = self.bn1(x)
-        
-        x = F.relu(x)
-        
-        x = self.fc2(x)
-        
-        x = self.bn2(x)
-        
-        x = F.relu(x)
-        
-        x = torch.tanh(self.mu(x))
-        
+        # squashing of mu
+        x = torch.tanh(x)
         return x
     
+    # q is initialized to smaller values than what "suggested" by the 1/sqrt(input_dim) rule
     def init_weights(self): 
         
-        f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
+        init_weights_mu = 0.003
+        torch.nn.init.uniform_(self.hidden_layers_dims[-1].weight.data, -init_weights_mu, init_weights_mu)
+        torch.nn.init.uniform_(self.hidden_layers_dims[-1].bias.data,   -init_weights_mu, init_weights_mu)
         
-        f2 = 1 / np.sqrt(self.fc2.weight.data.size()[0])
         
-        f3 = 0.003
-        
-        torch.nn.init.uniform_(self.fc1.weight.data, -f1, f1)
-        
-        torch.nn.init.uniform_(self.fc1.bias.data, -f1, f1)
-        
-        torch.nn.init.uniform_(self.fc2.weight.data, -f2, f2)
-
-        torch.nn.init.uniform_(self.fc2.bias.data, -f2, f2)
-        
-        torch.nn.init.uniform_(self.mu.weight.data, -f3, f3)
-        
-        torch.nn.init.uniform_(self.mu.bias.data, -f3, f3)
-        
-    
+    # saves checkpoint for the model
     def save_checkpoint(self):
-        
         torch.save(self.state_dict(), self.filename)
         print("saving")
 
+    # loads checkpoint for the model
     def load_checkpoint(self):
-    
         self.load_state_dict(torch.load(self.filename))
         
         
