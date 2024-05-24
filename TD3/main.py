@@ -82,19 +82,14 @@ if __name__ == '__main__':
         
         avg_score = np.mean(score_history[-50:]) 
         
-        if avg_score > best_score: 
-        
-            best_score = avg_score 
-            
-            agent.save_models() 
-            
-            
         if(i%50==0): 
+
+            if avg_score > best_score:
+                best_score = avg_score
+                agent.save_models()
         
             print("Results during training procedure:") 
-            
             print('episode ', i, 'score %.1f' % score, 'average score %.1f' % avg_score)
-            
             
     x = [i+1 for i in range(EPISODES)]
     
