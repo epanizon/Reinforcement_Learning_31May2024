@@ -1,5 +1,5 @@
 import numpy as np
-import gym
+import gymnasium as gym
 import matplotlib.pyplot as plt 
 import torch as T 
 import torch.nn as nn 
@@ -20,7 +20,7 @@ class ReplayBuffer():
         self.new_state_memory = np.zeros((self.mem_size, *input_shape)) 
         self.action_memory = np.zeros((self.mem_size, n_actions)) 
         self.reward_memory = np.zeros(self.mem_size) 
-        self.terminal_memory = np.zeros(self.mem_size, dtype = np.bool)
+        self.terminal_memory = np.zeros(self.mem_size, dtype = bool)
         
     def store_transition(self, state, action, reward, state_, done): 
         
@@ -33,7 +33,7 @@ class ReplayBuffer():
         self.mem_cntr +=1 
         
     def sample_buffer(self, batch_size): 
-    
+        
         max_mem = min(self.mem_cntr, self.mem_size) 
         batch = np.random.choice(max_mem, batch_size) 
         states = self.state_memory[batch] 
@@ -55,7 +55,7 @@ class CriticNetwork(nn.Module):
             if not os.path.exists(chkpt_dir): 
                 os.makedirs(chkpt_dir) 
             self.checkpoint_file= os.path.join(chkpt_dir,name +'_td3') 
-            
+        
         
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims 
@@ -71,9 +71,9 @@ class CriticNetwork(nn.Module):
         self.q1 = nn.Linear(self.fc2_dims,1) 
         
     def forward(self, state, action): 
-    """
-    Calculates q(s,a)
-    """
+        """
+        Calculates q(s,a)
+        """
         q1_action_value = self.fc1(T.cat([state,action],dim=1))
         q1_action_value = F.relu(q1_action_value) 
         q1_action_value = self.fc2(T.cat([q1_action_value,action],dim=1))
@@ -183,9 +183,12 @@ class Agent:
         self.critic_2 = CriticNetwork(self.input_dims, layer1_size, layer2_size, self.n_actions, name = "critic_2",chkpt_dir=chkpt_dir).to(self.device)
 
         # Targets NN, which will slowly follow to the learning ones.
-        self.target_actor = ActorNetwork(self.input_dims, layer1_size, layer2_size, self.n_actions, name = "target_actor",chkpt_dir=chkpt_dir).to(self.device)
-        self.target_critic_1 = CriticNetwork(self.input_dims, layer1_size, layer2_size, self.n_actions, name = "target_critic_1",chkpt_dir=chkpt_dir).to(self.device) 
-        self.target_critic_2 = CriticNetwork(self.input_dims, layer1_size, layer2_size, self.n_actions , name = "target_critic_2",chkpt_dir=chkpt_dir).to(self.device) 
+        self.target_actor = ActorNetwork(self.input_dims, layer1_size, layer2_size, 
+                                         self.n_actions, name = "target_actor",chkpt_dir=chkpt_dir).to(self.device)
+        self.target_critic_1 = CriticNetwork(self.input_dims, layer1_size, layer2_size, 
+                                             self.n_actions, name = "target_critic_1",chkpt_dir=chkpt_dir).to(self.device) 
+        self.target_critic_2 = CriticNetwork(self.input_dims, layer1_size, layer2_size, 
+                                             self.n_actions , name = "target_critic_2",chkpt_dir=chkpt_dir).to(self.device) 
 
         # Only the "true" actor and twin critics learn via gradient methods, the targets have a soft update of parameters
         self.actor_optimizer = optim.Adam(self.actor.parameters(),lr = actor_lr) 
@@ -226,7 +229,7 @@ class Agent:
         done = T.tensor(done).to(self.device) 
         state = T.tensor(state, dtype= T.float).to(self.device) 
         action = T.tensor(action, dtype= T.float).to(self.device) 
-        state_ = T.tensor(new_state, dtype= T.float).to(self.devic
+        state_ = T.tensor(new_state, dtype= T.float).to(self.device)
         target_actions = self.target_actor.forward(state_) 
         
         noise = T.clamp(T.randn_like(action)*self.noise*self.max_action,0.5*self.min_action,0.5*self.max_action)

@@ -1,6 +1,6 @@
 import numpy as np 
 import torch 
-import gym 
+import gymnasium as gym
 import matplotlib.pyplot as plt 
 from utils import *
 from main_classes2 import * 
@@ -20,12 +20,7 @@ if __name__ == '__main__':
     
     args = parser.parse_args() 
     
-    seed = 1
-    
     env = gym.make('BipedalWalkerHardcore-v3')
-    
-    env.seed(seed)
-    
     agent = Agent(env, critic_lr = args.critic_lr, actor_lr = args.actor_lr, chkpt_dir = args.save_dir)
     
 
@@ -53,8 +48,8 @@ if __name__ == '__main__':
  
     for i in range(EPISODES): 
     
-        state = env.reset() 
-        
+        state, _ = env.reset() 
+
         done = False 
         
         score = 0 
@@ -63,8 +58,8 @@ if __name__ == '__main__':
         
             action = agent.choose_action(state, expl_noise) 
             
-            new_state, reward, done, _ = env.step(action) 
-            
+            new_state, reward, term, trunc, _ = env.step(action) 
+            done = (term or trunc)
             if reward <= -100: 
             
                 reward =-1 
