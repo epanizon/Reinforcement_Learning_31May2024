@@ -14,12 +14,13 @@ if __name__ == '__main__':
     parser.add_argument('critic_lr', type = float) 
     parser.add_argument('actor_lr', type = float) 
     parser.add_argument('save_dir')
+    parser.add_argument('n_episodes')
     args = parser.parse_args() 
     
     env = gym.make('BipedalWalkerHardcore-v3')
     agent = Agent(env, critic_lr = args.critic_lr, actor_lr = args.actor_lr, chkpt_dir = args.save_dir)
     
-    EPISODES = 2000
+    EPISODES = int(args.n_episodes)
     
     name = "average_reward.png"
     if not os.path.exists(args.save_dir): 
