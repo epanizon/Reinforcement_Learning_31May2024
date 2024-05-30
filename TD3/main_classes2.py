@@ -7,6 +7,8 @@ import torch.nn.functional as F
 import torch.optim as optim 
 import os 
 
+MAX_ACTION = gym.make('BipedalWalkerHardcore-v3').action_space.high[0]
+
 class ReplayBuffer(): 
 
     def __init__(self, max_size, input_shape, n_actions): 
