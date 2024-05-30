@@ -10,6 +10,8 @@ from collections import deque
 import random
 import os
 
+MAX_ACTION = gym.make('BipedalWalkerHardcore-v3').action_space.high[0] 
+
 # Ornstein–Uhlenbeck noise.
 class OUNoise(object):
     def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000):
